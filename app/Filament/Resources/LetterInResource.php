@@ -3,21 +3,29 @@
 namespace App\Filament\Resources;
 
 use Filament\Forms;
+use App\Models\User;
 use Filament\Tables;
 use App\Models\LetterIn;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Departement;
+use App\Models\Dispotition;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
+use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Wizard;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Widgets\StatsOverviewWidget;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\LetterInResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LetterInResource\RelationManagers;
+use App\Filament\Resources\LetterInResource\RelationManagers\DispotitionRelationManager;
 use App\Filament\Resources\LetterInResource\Widgets\StatsOverview;
 
 class LetterInResource extends Resource
@@ -97,16 +105,20 @@ class LetterInResource extends Resource
                     ->url(fn ($record) => asset('storage/' . $record->file))
                 ->openUrlInNewTab(),
                 Tables\Columns\TextColumn::make('nomor_surat')
-                    ->searchable(),
-                
+                    ->searchable()
+                    ->hidden(fn () => !auth()->user()->hasRole(['admin', 'pimpinan'])),
                 Tables\Columns\TextColumn::make('tanggal_surat')
-                    ->searchable(),
+                    ->searchable()
+                    ->hidden(fn () => !auth()->user()->hasRole(['admin', 'pimpinan'])),
                 Tables\Columns\TextColumn::make('asal_surat')
-                    ->searchable(),
+                    ->searchable()
+                    ->hidden(fn () => !auth()->user()->hasRole(['admin', 'pimpinan'])),
                 Tables\Columns\TextColumn::make('sifat_surat')
-                    ->searchable(),
+                    ->searchable()
+                    ->hidden(fn () => !auth()->user()->hasRole(['admin', 'pimpinan'])),
                 Tables\Columns\TextColumn::make('kategori_surat')
-                    ->searchable(),
+                    ->searchable()
+                    ->hidden(fn () => !auth()->user()->hasRole(['admin', 'pimpinan'])),
                 // Tables\Columns\ImageColumn::make('file')
                 //     ->disk('public')
                 //     ->searchable(),
@@ -117,18 +129,15 @@ class LetterInResource extends Resource
                     'success' => 'Sudah Disposisi',
                 ])
                 ->formatStateUsing(fn ($record) => $record->status_disposisi),
-                // SelectColumn::make('disposisi')
+                // SelectColumn::make('dispotition.departement_id')
                 // ->label('Disposisi')
-                // ->options([
-                //     'Belum Disposisi' => 'Belum Disposisi',
-                //     'Ke Bidang A' => 'Ke Bidang A',
-                //     'Ke Bidang B' => 'Ke Bidang B',
-                //     'Ke Pegawai X' => 'Ke Pegawai X',
-                //     'Ke Pegawai Y' => 'Ke Pegawai Y',
-                // ])
-                // ->afterStateUpdated(fn ($record, $state) => $record->update(['disposisi' => $state]))
+                // ->options(fn () => Departement::pluck('name', 'id')->toArray())
                 // ->searchable()
-                // ->sortable()
+                // ->afterStateUpdated(fn ($state, $record) => Dispotition::updateOrCreate(
+                //     ['letter_in_id' => $record->id],
+                //     ['departement_id' => $state]
+                // )),
+                
             ])
             ->filters([
                 //
@@ -140,9 +149,12 @@ class LetterInResource extends Resource
                 // ->icon('heroicon-o-arrow-down-on-square')
                 // ->url(fn ($record) => Storage::disk('public')->url($record->file))
                 // ->url(fn ($record) => asset('storage/' . $record->file)),
+                // Action::make('beri_disposisi')
+                // ->modalActions()
+
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
@@ -151,7 +163,7 @@ class LetterInResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            DispotitionRelationManager::class,            
         ];
     }
 
@@ -175,4 +187,6 @@ class LetterInResource extends Resource
             LetterInResource\Widgets\StatsOverview::class,
         ];
     }
+
+    
 }

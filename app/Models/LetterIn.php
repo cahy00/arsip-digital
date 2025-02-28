@@ -20,4 +20,9 @@ class LetterIn extends Model
         'file',
         'status_disposisi'
     ];
+
+    public function dispotition()
+    {
+        return $this->hasOne(Dispotition::class, 'letter_in_id', 'id');
+    }
 }

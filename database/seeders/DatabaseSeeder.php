@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
+use App\Models\Departement;
+use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
@@ -29,8 +31,30 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        $role = Role::create(['name' => 'admin']);
+        $pimpinan = User::create([
+            'name' => 'pimpinan',
+            'email' => 'pimpinan@gmail.com',
+            'password' => bcrypt('12345678'),
+            'email_verified_at' => now(),
+        ]);
 
-        $admin->assignRole($role);
+        $role_admin = Role::create(['name' => 'admin']);
+        $role_pimpinan = Role::create(['name' => 'pimpinan']);
+
+        $admin->assignRole($role_admin);
+        $pimpinan->assignRole($role_pimpinan);
+
+        $departement = Departement::create([
+            'name' => 'Bidang Informasi Kepegawaian',
+            'slug' => 'bidang-informasi-kepegawaian'
+        ]);
+
+        $employee = Employee::create([
+            'name' => 'Cahyo',
+            'departement_id' => 1,
+            'position' => 'Pengelola Data',
+            'nip' => '123',
+            'nomor_hp' => '123'
+        ]);
     }
 }

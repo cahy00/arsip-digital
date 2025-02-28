@@ -16,3 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::middleware(['auth', 'role:pimpinan'])->group(function(){
+    Route::get('/admin/surat-disposisi', \App\Filament\Resources\LetterInResource\Pages\ListLetterIns::class);
+});
