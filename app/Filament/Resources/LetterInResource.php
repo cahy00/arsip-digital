@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
+use App\Models\Employee;
 use App\Models\LetterIn;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -13,20 +14,29 @@ use App\Models\Dispotition;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\Split;
+use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Wizard;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Columns\SelectColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Widgets\StatsOverviewWidget;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\LetterInResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LetterInResource\RelationManagers;
-use App\Filament\Resources\LetterInResource\RelationManagers\DispotitionRelationManager;
 use App\Filament\Resources\LetterInResource\Widgets\StatsOverview;
+use App\Filament\Resources\LetterInResource\RelationManagers\DispotitionRelationManager;
 
 class LetterInResource extends Resource
 {
@@ -41,54 +51,86 @@ class LetterInResource extends Resource
         return $form
             ->schema([
                 Card::make()->schema([
-                    Wizard::make()->schema([
-                        Wizard\Step::make('Data Surat')
+                        Section::make([
+                            Wizard::make()->schema([
+                                Wizard\Step::make('Data Surat')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('judul_surat')
+                                        ->label('Perihal Surat')
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('nomor_surat')
+                                        ->required()
+                                        ->maxLength(255),
+                                    
+                                    Forms\Components\DatePicker::make('tanggal_surat')
+                                        ->required(),
+                                        
+                                    
+                                    ]),
+                                Wizard\Step::make('Data Masuk Kanreg')
+                                    ->schema([
+                                        Forms\Components\DatePicker::make('tanggal_masuk')
+                                        ->required(),
+                                    Forms\Components\TextInput::make('asal_surat')
+                                    ->required()
+                                    ->maxLength(255),
+                                Forms\Components\Select::make('sifat_surat')
+                                    ->required()
+                                    ->options([
+                                        'biasa' => 'Biasa',
+                                        'segera' => 'Segera',
+                                        'penting' => 'Penting',
+                                        'rahasia' => 'Rahasia',
+                                    ]),
+                                Forms\Components\Select::make('kategori_surat')
+                                    ->required()
+                                    ->options([
+                                        'draft' => 'Surat Pengantar',
+                                        'reviewing' => 'Nota Dinas',
+                                        'published' => 'Surat Permohonan',
+                                    ]),
+                                    ]),
+                                Wizard\Step::make('Upload Dokumen')
+                                    ->schema([
+                                        Forms\Components\FileUpload::make('file')
+                                        ->required()
+                                        ->disk('public')
+                                        ->directory('surat-masuk')
+                                        ->visibility('private'),
+                                    ]),
+                            ])
+                                ]),
+                        Section::make([
+                            Repeater::make('dispotition')
+                            ->relationship()
                             ->schema([
-                                Forms\Components\TextInput::make('judul_surat')
-                                ->label('Perihal Surat')
+                                Select::make('departement_id')
+                                ->relationship('departement', 'name')
                                 ->required()
-                                ->maxLength(255),
-                            Forms\Components\TextInput::make('nomor_surat')
+                                ->reactive()
+                                ->afterStateUpdated(fn($state, callable $set)=>$set('employee_id', null))
+                                ->label('Disposisi Surat - Unit'),
+                                Select::make('employee_id')
+                                ->relationship('employee', 'name')
                                 ->required()
-                                ->maxLength(255),
-                            
-                            Forms\Components\DatePicker::make('tanggal_surat')
-                                ->required(),
-                                
-                            
-                            ]),
-                        Wizard\Step::make('Data Masuk Kanreg')
-                            ->schema([
-                                Forms\Components\DatePicker::make('tanggal_masuk')
-                                ->required(),
-                            Forms\Components\TextInput::make('asal_surat')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\Select::make('sifat_surat')
-                            ->required()
-                            ->options([
-                                'biasa' => 'Biasa',
-                                'segera' => 'Segera',
-                                'penting' => 'Penting',
-                                'rahasia' => 'Rahasia',
-                            ]),
-                        Forms\Components\Select::make('kategori_surat')
-                            ->required()
-                            ->options([
-                                'draft' => 'Surat Pengantar',
-                                'reviewing' => 'Nota Dinas',
-                                'published' => 'Surat Permohonan',
-                            ]),
-                            ]),
-                        Wizard\Step::make('Upload Dokumen')
-                            ->schema([
-                                Forms\Components\FileUpload::make('file')
-                                ->required()
-                                ->disk('public')
-                                ->directory('surat-masuk')
-                                ->visibility('private'),
-                            ]),
-                    ])
+                                ->options(function(callable $get){
+                                    $departementId = $get('departement_id');
+                                    if(!$departementId){
+                                        return[];
+                                    }
+
+                                    return Employee::where('departement_id', $departementId)
+                                    ->pluck('name', 'id')->toArray();
+                                })
+                                ->label('Disposisi Surat - Pegawai'),
+                                Textarea::make('ket')
+                                ->autosize()
+                                ])
+                        ])
+                        ->label('Disposisi Surat')
+                        ->description('Tentukan disposisi surat ke unit kerja dan pegawai')
+                        ->hidden(fn () => !auth()->user()->hasRole(['pimpinan']))
                 ])
                 
                         ]);
@@ -125,22 +167,40 @@ class LetterInResource extends Resource
                 BadgeColumn::make('status_disposisi')
                 ->label('Status')
                 ->colors([
-                    'warning' => 'Belum Disposisi',
-                    'success' => 'Sudah Disposisi',
+                    'warning' => 'belum_disposisi',
+                    'success' => 'sudah_disposisi',
                 ])
                 ->formatStateUsing(fn ($record) => $record->status_disposisi),
-                // SelectColumn::make('dispotition.departement_id')
-                // ->label('Disposisi')
-                // ->options(fn () => Departement::pluck('name', 'id')->toArray())
-                // ->searchable()
-                // ->afterStateUpdated(fn ($state, $record) => Dispotition::updateOrCreate(
-                //     ['letter_in_id' => $record->id],
-                //     ['departement_id' => $state]
-                // )),
                 
             ])
             ->filters([
-                //
+                // SelectFilter::make('dispotition')
+                //     ->relationship(name: 'departements', titleAttribute: 'name')
+                //     ->label('Kategori Pertanyaan'),
+                // SelectFilter::make('status')
+                // ->relationship(name: 'answer', titleAttribute: 'status')
+                // ->label('Status Pertanyaan'),
+                // SelectFilter::make('city_id')
+                //     ->relationship(name: 'city', titleAttribute: 'name')
+                //     ->label('Kab/Kota'),
+                // Filter::make('created_at')
+                //     ->form([
+                //         DatePicker::make('created_from')
+                //             ->label('Tanggal Awal'),
+                //         DatePicker::make('created_until')
+                //             ->label('Tanggal Akhir'),
+                //     ])
+                //     ->query(function (Builder $query, array $data): Builder {
+                //         return $query
+                //             ->when(
+                //                 $data['created_from'],
+                //                 fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                //             )
+                //             ->when(
+                //                 $data['created_until'],
+                //                 fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                //             );
+                //     })
             ])
             ->actions([
                 // Tables\Actions\EditAction::make(),
@@ -157,13 +217,14 @@ class LetterInResource extends Resource
                     Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultGroup('status_disposisi');
     }
 
     public static function getRelations(): array
     {
         return [
-            DispotitionRelationManager::class,            
+            //
         ];
     }
 
@@ -187,6 +248,11 @@ class LetterInResource extends Resource
             LetterInResource\Widgets\StatsOverview::class,
         ];
     }
+
+    public static function canCreate(): bool
+{
+    return !Auth::user()->hasRole('pimpinan'); // Hanya user non-pimpinan yang bisa create
+}
 
     
 }

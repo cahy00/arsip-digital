@@ -13,6 +13,23 @@ class Dispotition extends Model
         'letter_in_id', 'employee_id', 'departement_id', 'ket'
     ];
 
+    public static function boot()
+    {
+        parent::boot();
+
+        // Saat Disposisi dibuat, update status surat
+        static::created(function ($disposition) {
+            $disposition->letterIn()->update(['status_disposisi' => 'sudah_disposisi']);
+        });
+
+        // Saat Disposisi dihapus, cek apakah masih ada disposisi, jika tidak ubah status jadi "Belum Disposisi"
+        static::deleted(function ($disposition) {
+            if (!$disposition->letterIn->disposition()->exists()) {
+                $disposition->letterIn()->update(['status_disposisi' => 'belum_disposisi']);
+            }
+        });
+    }
+
     public function letterIn()
     {
         return $this->belongsTo(LetterIn::class);

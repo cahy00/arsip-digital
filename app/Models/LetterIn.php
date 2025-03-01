@@ -23,6 +23,6 @@ class LetterIn extends Model
 
     public function dispotition()
     {
-        return $this->hasOne(Dispotition::class, 'letter_in_id', 'id');
+        return $this->hasMany(Dispotition::class, 'letter_in_id', 'id');
     }
 }
