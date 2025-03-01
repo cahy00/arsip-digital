@@ -16,11 +16,11 @@ class StatsOverview extends BaseWidget
                 ->description('Jumlah semua surat yang masuk')
                 ->color('primary'),
             
-            Stat::make('Surat Belum Disposisi', LetterIn::where('status_disposisi', 'Belum Disposisi')->count())
+            Stat::make('Surat Belum Disposisi', LetterIn::where('status_disposisi', 'belum_disposisi')->count())
                 ->description('Surat yang belum diproses pimpinan')
                 ->color('warning'),
 
-            Stat::make('Surat Sudah Disposisi', LetterIn::where('status_disposisi', 'Sudah Disposisi')->count())
+            Stat::make('Surat Sudah Disposisi', LetterIn::where('status_disposisi', 'sudah_disposisi')->count())
                 ->description('Surat yang sudah diproses pimpinan')
                 ->color('success'),
         ];

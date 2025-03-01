@@ -174,43 +174,10 @@ class LetterInResource extends Resource
                 
             ])
             ->filters([
-                // SelectFilter::make('dispotition')
-                //     ->relationship(name: 'departements', titleAttribute: 'name')
-                //     ->label('Kategori Pertanyaan'),
-                // SelectFilter::make('status')
-                // ->relationship(name: 'answer', titleAttribute: 'status')
-                // ->label('Status Pertanyaan'),
-                // SelectFilter::make('city_id')
-                //     ->relationship(name: 'city', titleAttribute: 'name')
-                //     ->label('Kab/Kota'),
-                // Filter::make('created_at')
-                //     ->form([
-                //         DatePicker::make('created_from')
-                //             ->label('Tanggal Awal'),
-                //         DatePicker::make('created_until')
-                //             ->label('Tanggal Akhir'),
-                //     ])
-                //     ->query(function (Builder $query, array $data): Builder {
-                //         return $query
-                //             ->when(
-                //                 $data['created_from'],
-                //                 fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
-                //             )
-                //             ->when(
-                //                 $data['created_until'],
-                //                 fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
-                //             );
-                //     })
+                
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
-                // Tables\Actions\Action::make('download')
-                // ->label('unduh')
-                // ->icon('heroicon-o-arrow-down-on-square')
-                // ->url(fn ($record) => Storage::disk('public')->url($record->file))
-                // ->url(fn ($record) => asset('storage/' . $record->file)),
-                // Action::make('beri_disposisi')
-                // ->modalActions()
+                
 
             ])
             ->bulkActions([
@@ -245,7 +212,7 @@ class LetterInResource extends Resource
     public static function getWidgets(): array
     {
         return [
-            LetterInResource\Widgets\StatsOverview::class,
+            StatsOverview::class,
         ];
     }
 
