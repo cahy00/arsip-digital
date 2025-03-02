@@ -25,7 +25,7 @@ class RedirectBasedOnRole
         if ($user->hasRole('admin')) {
             return redirect('/admin/dashboard');
         } elseif ($user->hasRole('pimpinan')) {
-            return redirect('/pimpinan/dashboard');
+            return redirect('/admin/dashboard');
         } elseif ($user->hasRole('pegawai')) {
             return redirect('/pegawai/dashboard');
         }

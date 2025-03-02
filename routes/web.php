@@ -1,5 +1,6 @@
 <?php
 
+use Filament\Pages\Dashboard;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,4 +20,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'role:pimpinan'])->group(function(){
     Route::get('/admin/surat-disposisi', \App\Filament\Resources\LetterInResource\Pages\ListLetterIns::class);
+    // Route::get('/admin', function(){
+    //     return Dashboard::class;
+    // });
 });

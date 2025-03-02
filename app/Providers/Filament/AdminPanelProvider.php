@@ -2,7 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\PimpinanDashboard;
 use App\Filament\Resources\LetterInResource\Widgets\StatsOverview;
+use App\Http\Middleware\RedirectBasedOnRole;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
@@ -37,11 +39,12 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Pages\Dashboard::class,
+                // PimpinanDashboard::class
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                // Widgets\AccountWidget::class,
+                // Widgets\FilamentInfoWidget::class,
                 StatsOverview::class,
             ])
             ->middleware([
@@ -61,11 +64,19 @@ class AdminPanelProvider extends PanelProvider
     }
 
     public function boot()
-{
+    {
     Filament::serving(function () {
         if (Auth::check() && Auth::user()->hasRole('pimpinan')) {
             return redirect('/admin/surat-disposisi');
         }
     });
-}
+    }
+
+    // protected function getMiddleware()
+    // {
+    // return [
+    //     // ...
+    //     RedirectBasedOnRole::class,
+    // ];
+    // }
 }

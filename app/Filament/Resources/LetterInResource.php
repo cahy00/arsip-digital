@@ -22,19 +22,28 @@ use Filament\Forms\Components\Wizard;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Widgets\StatsOverviewWidget;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Wizard\Step;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\DeleteBulkAction;
 use App\Filament\Resources\LetterInResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LetterInResource\RelationManagers;
+use App\Filament\Resources\LetterInResource\Pages\EditLetterIn;
+use App\Filament\Resources\LetterInResource\Pages\ListLetterIns;
+use App\Filament\Resources\LetterInResource\Pages\CreateLetterIn;
 use App\Filament\Resources\LetterInResource\Widgets\StatsOverview;
 use App\Filament\Resources\LetterInResource\RelationManagers\DispotitionRelationManager;
 
@@ -53,7 +62,7 @@ class LetterInResource extends Resource
                 Card::make()->schema([
                         Section::make([
                             Wizard::make()->schema([
-                                Wizard\Step::make('Data Surat')
+                                Step::make('Data Surat')
                                     ->schema([
                                         Forms\Components\TextInput::make('judul_surat')
                                         ->label('Perihal Surat')
@@ -62,11 +71,11 @@ class LetterInResource extends Resource
                                     Forms\Components\TextInput::make('nomor_surat')
                                         ->required()
                                         ->maxLength(255),
-                                    
+
                                     Forms\Components\DatePicker::make('tanggal_surat')
                                         ->required(),
-                                        
-                                    
+
+
                                     ]),
                                 Wizard\Step::make('Data Masuk Kanreg')
                                     ->schema([
@@ -132,17 +141,17 @@ class LetterInResource extends Resource
                         ->description('Tentukan disposisi surat ke unit kerja dan pegawai')
                         ->hidden(fn () => !auth()->user()->hasRole(['pimpinan']))
                 ])
-                
+
                         ]);
-            
-            
+
+
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('judul_surat')
+                TextColumn::make('judul_surat')
                     ->searchable()
                     ->url(fn ($record) => asset('storage/' . $record->file))
                 ->openUrlInNewTab(),
@@ -169,16 +178,18 @@ class LetterInResource extends Resource
                 ->colors([
                     'warning' => 'belum_disposisi',
                     'success' => 'sudah_disposisi',
+
                 ])
                 ->formatStateUsing(fn ($record) => $record->status_disposisi),
-                
+
             ])
             ->filters([
-                
+                // SelectFilter::make('status_disposisi')
+                    // ->relationship(name: 'dispotition', titleAttribute: 'name')
+                    // ->label('Kab/Kota'),
             ])
             ->actions([
-                
-
+                //
             ])
             ->bulkActions([
                     Tables\Actions\BulkActionGroup::make([
@@ -213,13 +224,19 @@ class LetterInResource extends Resource
     {
         return [
             StatsOverview::class,
+            LetterInResource\Widgets\StatsOverview::class
         ];
     }
 
     public static function canCreate(): bool
-{
-    return !Auth::user()->hasRole('pimpinan'); // Hanya user non-pimpinan yang bisa create
-}
+    {
+        return !Auth::user()->hasRole('pimpinan'); // Hanya user non-pimpinan yang bisa create
+    }
 
-    
+    // public static function canEdit(Model $record): bool
+    // {
+    //     return !Auth::user()->hasRole('pimpinan'); // Pimpinan tidak bisa edit
+    // }
+
+
 }

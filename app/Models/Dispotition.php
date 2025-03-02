@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Notifications\DisposisiWhatsAppNotification;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Dispotition extends Model
 {
@@ -20,6 +21,8 @@ class Dispotition extends Model
         // Saat Disposisi dibuat, update status surat
         static::created(function ($disposition) {
             $disposition->letterIn()->update(['status_disposisi' => 'sudah_disposisi']);
+            $pegawai = $disposition->employee;
+            $pegawai->notify(new DisposisiWhatsAppNotification($disposition));
         });
 
         // Saat Disposisi dihapus, cek apakah masih ada disposisi, jika tidak ubah status jadi "Belum Disposisi"
@@ -27,6 +30,10 @@ class Dispotition extends Model
             if (!$disposition->letterIn->disposition()->exists()) {
                 $disposition->letterIn()->update(['status_disposisi' => 'belum_disposisi']);
             }
+        });
+
+        static::created(function ($disposition) {
+            
         });
     }
 
