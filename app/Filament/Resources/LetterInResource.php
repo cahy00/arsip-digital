@@ -2,8 +2,12 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\LetterInResource\Widgets\LetterOverview;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
 use App\Models\User;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Tables;
 use App\Models\Employee;
 use App\Models\LetterIn;
@@ -166,6 +170,7 @@ class LetterInResource extends Resource
                     ->hidden(fn () => !auth()->user()->hasRole(['admin', 'pimpinan'])),
                 Tables\Columns\TextColumn::make('sifat_surat')
                     ->searchable()
+//                    ->isToggleable(isToggleHiddenByDefault:true)
                     ->hidden(fn () => !auth()->user()->hasRole(['admin', 'pimpinan'])),
                 Tables\Columns\TextColumn::make('kategori_surat')
                     ->searchable()
@@ -184,12 +189,32 @@ class LetterInResource extends Resource
 
             ])
             ->filters([
-                // SelectFilter::make('status_disposisi')
-                    // ->relationship(name: 'dispotition', titleAttribute: 'name')
-                    // ->label('Kab/Kota'),
+                SelectFilter::make('status_disposisi')
+//                    ->relationship(name: 'dispotition', titleAttribute: 'name')
+                    ->label('Status Disposisi'),
+                SelectFilter::make('asal_surat'),
+                Filter::make('tanggal_masuk')
+                    ->form([
+                        DatePicker::make('created_from')
+                            ->label('Tanggal Awal'),
+                        DatePicker::make('created_until')
+                            ->label('Tanggal Akhir'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    })
             ])
             ->actions([
-                //
+                Tables\Actions\ViewAction::make()
+                ->label('Lihat Data')
             ])
             ->bulkActions([
                     Tables\Actions\BulkActionGroup::make([
@@ -198,6 +223,14 @@ class LetterInResource extends Resource
             ])
             ->defaultGroup('status_disposisi');
     }
+
+//    public static function infolist(Infolist $infolist): Infolist
+//    {
+//        return $infolist
+//            ->schema([
+//                TextEntry::make('judul_surat')
+//            ]);
+//    }
 
     public static function getRelations(): array
     {
@@ -224,7 +257,7 @@ class LetterInResource extends Resource
     {
         return [
             StatsOverview::class,
-            LetterInResource\Widgets\StatsOverview::class
+            LetterOverview::class,
         ];
     }
 
@@ -233,10 +266,10 @@ class LetterInResource extends Resource
         return !Auth::user()->hasRole('pimpinan'); // Hanya user non-pimpinan yang bisa create
     }
 
-    // public static function canEdit(Model $record): bool
-    // {
-    //     return !Auth::user()->hasRole('pimpinan'); // Pimpinan tidak bisa edit
-    // }
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 
 
 }

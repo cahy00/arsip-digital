@@ -5,11 +5,15 @@ namespace App\Filament\Resources\LetterInResource\Widgets;
 use App\Models\LetterIn;
 use Filament\Widgets\StatsOverviewWidget\Card;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Filament\Widgets\Widget;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 
-class StatsOverview extends BaseWidget
+
+class LetterOverview extends BaseWidget
 {
-    protected function getCards(): array
+    protected static string $view = 'filament.resources.letter-in-resource.widgets.letter-overview';
+
+    public function getCards(): array
     {
         return [
             Card::make('Total Surat Masuk', LetterIn::count())
@@ -26,4 +30,10 @@ class StatsOverview extends BaseWidget
         ];
     }
 
+    public function getStats(): array
+    {
+        return [
+            Stat::make('Total Surat Masuk', LetterIn::count())
+        ];
+    }
 }
