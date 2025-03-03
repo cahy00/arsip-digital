@@ -52,7 +52,7 @@ class AdminPanelProvider extends PanelProvider
                 // Widgets\AccountWidget::class,
                 // Widgets\FilamentInfoWidget::class,
                 StatsOverview::class,
-                LetterOverview::class
+//                LetterOverview::class
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -67,6 +67,11 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            ->navigationGroups([
+                'Manajemen Surat',
+                'Data Pendukung',
+                'Settings',
             ]);
     }
 

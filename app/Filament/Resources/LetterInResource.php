@@ -224,13 +224,6 @@ class LetterInResource extends Resource
             ->defaultGroup('status_disposisi');
     }
 
-//    public static function infolist(Infolist $infolist): Infolist
-//    {
-//        return $infolist
-//            ->schema([
-//                TextEntry::make('judul_surat')
-//            ]);
-//    }
 
     public static function getRelations(): array
     {
@@ -271,12 +264,17 @@ class LetterInResource extends Resource
         return static::getModel()::count();
     }
 
-    public static function getEloquentQuery(): Builder
+//    public static function getEloquentQuery(): Builder
+//    {
+//        return parent::getEloquentQuery()
+//            ->whereHas('dispotition', function($query) {
+//                $query->where('departement_id', auth()->user()->departement_id);
+//            });
+//    }
+
+    public static function shouldRegisterNavigation(): bool
     {
-        return parent::getEloquentQuery()
-            ->whereHas('dispotition', function($query) {
-                $query->where('departement_id', auth()->user()->departement_id);
-            });
+        return auth()->user()->hasRole(['admin','pimpinan']);
     }
 
 

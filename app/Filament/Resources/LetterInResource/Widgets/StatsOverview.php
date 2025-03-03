@@ -15,7 +15,7 @@ class StatsOverview extends BaseWidget
             $query->where('departement_id', auth()->user()->departement_id);
         })->get();
         return [
-            Card::make('Total Surat Masuk', $surat->count())
+            Card::make('Total Surat Masuk', LetterIn::count())
                 ->description('Jumlah semua surat yang masuk')
                 ->color('primary'),
 
