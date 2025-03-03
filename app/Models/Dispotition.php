@@ -22,7 +22,7 @@ class Dispotition extends Model
         static::created(function ($disposition) {
             $disposition->letterIn()->update(['status_disposisi' => 'sudah_disposisi']);
             $pegawai = $disposition->employee;
-            $pegawai->notify(new DisposisiWhatsAppNotification($disposition));
+//            $pegawai->notify(new DisposisiWhatsAppNotification($disposition));
         });
 
         // Saat Disposisi dihapus, cek apakah masih ada disposisi, jika tidak ubah status jadi "Belum Disposisi"
@@ -31,11 +31,18 @@ class Dispotition extends Model
                 $disposition->letterIn()->update(['status_disposisi' => 'belum_disposisi']);
             }
         });
-
-        static::created(function ($disposition) {
-            
-        });
     }
+
+//    public function scopeForUserBidang($query)
+//    {
+//        $user = auth()->user();
+//
+//        if ($user->departement_id) {
+//            return $query->where('departement_id', $user->bidang_id);
+//        }
+//
+//        return $query; // Jika user tidak memiliki bidang, tampilkan semua surat
+//    }
 
     public function letterIn()
     {

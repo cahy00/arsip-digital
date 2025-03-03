@@ -24,10 +24,16 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
+        $departement = Departement::create([
+            'name' => 'Bidang Informasi Kepegawaian',
+            'slug' => 'bidang-informasi-kepegawaian'
+        ]);
+
         $admin = User::create([
             'name' => 'Cahyo',
             'email' => 'cgumilang48@gmail.com',
             'password' => bcrypt('12345678'),
+            'departement_id' => 1,
             'email_verified_at' => now(),
         ]);
 
@@ -35,6 +41,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'pimpinan',
             'email' => 'pimpinan@gmail.com',
             'password' => bcrypt('12345678'),
+            'departement_id' => 1,
             'email_verified_at' => now(),
         ]);
 
@@ -44,10 +51,7 @@ class DatabaseSeeder extends Seeder
         $admin->assignRole($role_admin);
         $pimpinan->assignRole($role_pimpinan);
 
-        $departement = Departement::create([
-            'name' => 'Bidang Informasi Kepegawaian',
-            'slug' => 'bidang-informasi-kepegawaian'
-        ]);
+
 
         $employee = Employee::create([
             'name' => 'Cahyo',

@@ -11,8 +11,11 @@ class StatsOverview extends BaseWidget
 {
     protected function getCards(): array
     {
+        $surat = LetterIn::whereHas('dispotition', function($query) {
+            $query->where('departement_id', auth()->user()->departement_id);
+        })->get();
         return [
-            Card::make('Total Surat Masuk', LetterIn::count())
+            Card::make('Total Surat Masuk', $surat->count())
                 ->description('Jumlah semua surat yang masuk')
                 ->color('primary'),
 

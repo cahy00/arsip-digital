@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Departement;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
@@ -15,9 +16,17 @@ class RolePermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        // $role = Role::create(['name' => 'pimpinan']);
-        // $user = User::find('1');
-        // $user->assignRole('admin');
-        // $user->assignRole($role);
+        $departement = Departement::create([
+            'name' => 'Bidang Pengadaan Kepegawaian',
+            'slug' => 'bidang-pengadaan-kepegawaian'
+        ]);
+
+        $admin = User::create([
+            'name' => 'pensiun',
+            'email' => 'pensiun@gmail.com',
+            'password' => bcrypt('12'),
+            'departement_id' => 2,
+            'email_verified_at' => now(),
+        ]);
     }
 }

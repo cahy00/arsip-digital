@@ -55,7 +55,7 @@ class LetterInResource extends Resource
 {
     protected static ?string $model = LetterIn::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-envelope-open';
     protected static ?string $navigationGroup = 'Manajemen Surat';
     protected static ?string $pluralModelLabel = 'Surat Masuk';
 
@@ -269,6 +269,14 @@ class LetterInResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->whereHas('dispotition', function($query) {
+                $query->where('departement_id', auth()->user()->departement_id);
+            });
     }
 
 

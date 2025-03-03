@@ -70,20 +70,20 @@ class AdminPanelProvider extends PanelProvider
             ]);
     }
 
-    public function boot()
-    {
-    Filament::serving(function () {
-        if (Auth::check() && Auth::user()->hasRole('pimpinan')) {
-            return redirect('/admin/surat-disposisi');
-        }
-    });
-    }
+//    public function boot()
+//    {
+//    Filament::serving(function () {
+//        if (Auth::check() && Auth::user()->hasRole('pimpinan')) {
+//            return redirect('/admin/surat-disposisi');
+//        }
+//    });
+//    }
 
-    // protected function getMiddleware()
-    // {
-    // return [
-    //     // ...
-    //     RedirectBasedOnRole::class,
-    // ];
-    // }
+    protected function getMiddleware()
+    {
+    return [
+         // ...
+        RedirectBasedOnRole::class,
+        ];
+    }
 }

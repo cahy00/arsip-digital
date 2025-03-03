@@ -25,4 +25,11 @@ class LetterIn extends Model
     {
         return $this->hasMany(Dispotition::class, 'letter_in_id', 'id');
     }
+
+    public function departements()
+    {
+        return $this->belongsToMany(Departement::class, 'dispotitiions')
+            ->using(Dispotition::class);
+//            ->withPivot('')
+    }
 }

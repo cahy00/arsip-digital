@@ -25,7 +25,7 @@ class RedirectBasedOnRole
         if ($user->hasRole('admin')) {
             return redirect('/admin/dashboard');
         } elseif ($user->hasRole('pimpinan')) {
-            return redirect('/admin/dashboard');
+            return redirect()->route('filament.pages.pimpinan-dashboard');
         } elseif ($user->hasRole('pegawai')) {
             return redirect('/pegawai/dashboard');
         }
