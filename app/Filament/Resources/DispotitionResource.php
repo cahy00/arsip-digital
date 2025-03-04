@@ -6,14 +6,21 @@ use App\Filament\Resources\DispotitionResource\Pages;
 use App\Filament\Resources\DispotitionResource\RelationManagers;
 use App\Models\Dispotition;
 use Filament\Actions\Action;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use function Laravel\Prompts\progress;
 
 class DispotitionResource extends Resource
 {
@@ -42,10 +49,21 @@ class DispotitionResource extends Resource
                 Tables\Columns\TextColumn::make('letterIn.asal_surat')
                     ->label('Nomor Surat')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('letterIn.sifat_surat')->label('Tanggal Masuk')->sortable(),
+//                Tables\Columns\TextColumn::make('letterIn.sifat_surat')->label('Tanggal Masuk')->sortable(),
                 Tables\Columns\TextColumn::make('departement.name')->label('Unit Kerja')->sortable(),
-                Tables\Columns\TextColumn::make('employee.name')->label('Pegawai')->sortable(),
-                Tables\Columns\TextColumn::make('ket')->label('Ket'),
+
+                Tables\Columns\TextColumn::make('ket')->label('Arahan Pimpinan'),
+                BadgeColumn::make('progress.status_progress')
+                    ->label('Status')
+                    ->colors([
+                        'warning' => 'belum_selesai',
+                        'success' => 'selesai',
+                        'info' => 'on_progress',
+
+                    ])
+                    ->getStateUsing(function ($record) {
+                        return $record->progress()->latest()->first()?->status_progress;
+                    })
 
             ])
             ->filters([
@@ -54,18 +72,40 @@ class DispotitionResource extends Resource
             ->actions([
 //                Tables\Actions\EditAction::make(),
 //                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\Action::make('test')
+                Tables\Actions\Action::make('progress')
                     ->label('Progress')
-                    ->icon('heroicon-o-pencil')
+                    ->icon('heroicon-o-plus-circle')
                     ->button()
+                    ->color('primary')
                     ->form([
-                        Forms\Components\TextInput::make('progres')
-                    ])
+                        Forms\Components\Select::make('status_progress')
+                        ->label('Status')
+                        ->options([
+                            'on_progress' => 'On Progress',
+                            'selesai' => 'Selesai',
+                        ]),
+                        Forms\Components\Textarea::make('ket')])
                     ->modalHeading('Beri Disposisi')
                     ->modalButton('Simpan')
-                    ->modalHeading('Welcome')
+                    ->action(function ($data, $record) {
+                        $record->progress()->create([
+                            'status_progress' => $data['status_progress'], // Pastikan field ada
+                            'ket' => $data['ket'],
+                            'disposition_id' => $record->id
+                        ]);
+                    })
+//                    ->action(fn ($data, $record) => $record->progress()
+//                    ->Create(['dispotition_id' => $record->id], ['status_progress' => $data['status_progress']], ['ket' => $data['ket']]))
                     ->hidden(fn () => auth()->user()->hasRole(['admin', 'pimpinan'])),
-                Tables\Actions\Action::make('lihat-progress')
+//                Tables\Actions\Action::make('lihat-progress')
+//                    ->label('Lihat Progress')
+//                    ->icon('heroicon-o-eye')
+//                    ->button()
+//                    ->color('success')
+                Tables\Actions\ViewAction::make()
+                    ->label('Lihat Progress')
+                    ->button()
+                    ->color('success')
 
             ])
             ->bulkActions([
@@ -76,6 +116,35 @@ class DispotitionResource extends Resource
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Progress')
+                ->description('Progress Penyelesaian Surat')
+                ->schema([
+                    RepeatableEntry::make('progress')
+                        ->label('Tahapan')
+                        ->schema([
+                            TextEntry::make('status_progress')
+                            ->label('Status')
+                                ->badge()
+                                ->color(fn (string $state): string => match ($state) {
+                                    'belum_selesai' => 'warning',
+                                    'selesai' => 'success',
+                                    'on_progress' => 'info',
+                                }),
+                            TextEntry::make('created_at')
+                            ->label('Tanggal Input'),
+                            TextEntry::make('ket')
+                                ->columnSpan(2),
+                        ])
+                        ->columns(2)
+                ])
+                ]);
+
     }
 
     public static function getPages(): array
@@ -98,6 +167,6 @@ class DispotitionResource extends Resource
 
     public static function canCreate(): bool
     {
-        return Auth::user()->hasRole('pimpinan'); // Hanya user non-pimpinan yang bisa create
+        return Auth::user()->hasRole('admin'); // Hanya user non-pimpinan yang bisa create
     }
 }

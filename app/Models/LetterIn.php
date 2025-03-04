@@ -28,8 +28,13 @@ class LetterIn extends Model
 
     public function departements()
     {
-        return $this->belongsToMany(Departement::class, 'dispotitiions')
+        return $this->belongsToMany(Departement::class, 'dispotitions')
             ->using(Dispotition::class);
 //            ->withPivot('')
     }
+
+//    public function employee()
+//    {
+//        return $this->hasMany(Employee::class, 'employee_id');
+//    }
 }

@@ -6,6 +6,7 @@ use App\Filament\Resources\LetterInResource\Widgets\LetterOverview;
 use Filament\Actions\ViewAction;
 use Filament\Forms;
 use App\Models\User;
+use Filament\Infolists\Components\Tabs;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Tables;
@@ -161,7 +162,7 @@ class LetterInResource extends Resource
                 ->openUrlInNewTab(),
                 Tables\Columns\TextColumn::make('nomor_surat')
                     ->searchable()
-                    ->hidden(fn () => !auth()->user()->hasRole(['admin', 'pimpinan'])),
+                    ->hidden(fn () => !auth()->user()->hasRole(['admin'])),
                 Tables\Columns\TextColumn::make('tanggal_surat')
                     ->searchable()
                     ->hidden(fn () => !auth()->user()->hasRole(['admin', 'pimpinan'])),
@@ -174,7 +175,7 @@ class LetterInResource extends Resource
                     ->hidden(fn () => !auth()->user()->hasRole(['admin', 'pimpinan'])),
                 Tables\Columns\TextColumn::make('kategori_surat')
                     ->searchable()
-                    ->hidden(fn () => !auth()->user()->hasRole(['admin', 'pimpinan'])),
+                    ->hidden(fn () => !auth()->user()->hasRole(['admin'])),
                 // Tables\Columns\ImageColumn::make('file')
                 //     ->disk('public')
                 //     ->searchable(),
@@ -215,6 +216,39 @@ class LetterInResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make()
                 ->label('Lihat Data')
+                ->button(),
+//                Tables\Actions\Action::make('dispotition')
+//                    ->label('Dispotition')
+//                    ->icon('heroicon-o-plus-circle')
+//                    ->button()
+//                    ->color('primary')
+//                    ->form([
+//                        Select::make('departement_id')
+//                            ->relationship('departements', 'name')
+//                            ->required()
+//                            ->reactive()
+//                            ->afterStateUpdated(fn($state, callable $set)=>$set('employee_id', null))
+//                            ->label('Disposisi Surat - Unit'),
+//                        Select::make('employee_id')
+//                            ->relationship('employee', 'name')
+//                            ->required()
+//                            ->options(function(callable $get){
+//                                $departementId = $get('departement_id');
+//                                if(!$departementId){
+//                                    return[];
+//                                }
+//
+//                                return Employee::where('departement_id', $departementId)
+//                                    ->pluck('name', 'id')->toArray();
+//                            })
+//                            ->label('Disposisi Surat - Pegawai'),
+//                        Forms\Components\Textarea::make('ket')
+//                    ])
+//                    ->modalHeading('Beri Disposisi')
+//                    ->modalButton('Simpan')
+//                    ->action(fn ($data, $record) => $record->progress()
+//                        ->updateOrCreate(['letter_in_id' => $record->id], ['departement_id' => $data['departement_id']], ['employee_id' => $data['employee_id']],['ket' => $data['ket']]))
+//                    ->hidden(fn () => !auth()->user()->hasRole(['admin', 'pimpinan'])),
             ])
             ->bulkActions([
                     Tables\Actions\BulkActionGroup::make([
@@ -275,6 +309,31 @@ class LetterInResource extends Resource
     public static function shouldRegisterNavigation(): bool
     {
         return auth()->user()->hasRole(['admin','pimpinan']);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                \Filament\Infolists\Components\Section::make('Data Surat')
+                    ->description('Data Surat yang Masuk ke Kanreg')
+                    ->schema([
+                        TextEntry::make('judul_surat'),
+                        TextEntry::make('nomor_surat'),
+                        TextEntry::make('tanggal_surat')->date(),
+                        TextEntry::make('sifat_surat')->badge(),
+                    ])->columns(4),
+                \Filament\Infolists\Components\Section::make('Data Surat')
+                    ->schema([
+                        TextEntry::make('asal_surat'),
+                        TextEntry::make('kategori_surat'),
+                        TextEntry::make('tanggal_masuk'),
+                        TextEntry::make('file')
+                        ->label('download')
+                        ->url(fn ($record) => asset('storage/' . $record->file))
+
+                    ])->columns(5),
+            ]);
     }
 
 

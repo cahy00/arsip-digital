@@ -33,7 +33,9 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->colors([
+            ->brandName('Arsip Digital')
+            ->favicon(asset('bkn/logo_bkn.png'))
+        ->colors([
                 'danger' => Color::Red,
                 'gray' => Color::Slate,
                 'info' => Color::Blue,
@@ -54,6 +56,7 @@ class AdminPanelProvider extends PanelProvider
                 StatsOverview::class,
 //                LetterOverview::class
             ])
+            ->topNavigation()
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

@@ -17,10 +17,13 @@ class Dispotition extends Model
     public static function boot()
     {
         parent::boot();
-
         // Saat Disposisi dibuat, update status surat
         static::created(function ($disposition) {
             $disposition->letterIn()->update(['status_disposisi' => 'sudah_disposisi']);
+            $disposition->progress()->create([
+                'status_progress' => 'belum_selesai',
+                'ket' => 'disposisi awal dari pimpinan'
+            ]);
             $pegawai = $disposition->employee;
 //            $pegawai->notify(new DisposisiWhatsAppNotification($disposition));
         });
@@ -57,5 +60,15 @@ class Dispotition extends Model
     public function departement()
     {
         return $this->belongsTo(Departement::class);
+    }
+
+    public function progress()
+    {
+        return $this->hasMany(Progress::class);
+    }
+
+    public function getStatusAttribute()
+    {
+        return $this->progress()->latest()->first()?->status_progress ?? 'belum_selesai';
     }
 }
