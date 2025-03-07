@@ -84,13 +84,23 @@ class DispotitionResource extends Resource
                             'on_progress' => 'On Progress',
                             'selesai' => 'Selesai',
                         ]),
-                        Forms\Components\Textarea::make('ket')])
+                        Forms\Components\Textarea::make('ket'),
+                        Forms\Components\FileUpload::make('document-progress')
+                            ->label('Dokumen Penyelesaian')
+                            ->required()
+                            ->disk('public')
+                            ->directory('document-progress')
+                            ->visibility('private'),
+
+                    ])
+
                     ->modalHeading('Beri Disposisi')
                     ->modalButton('Simpan')
                     ->action(function ($data, $record) {
                         $record->progress()->create([
                             'status_progress' => $data['status_progress'], // Pastikan field ada
                             'ket' => $data['ket'],
+                            'document-progress' => $data['document-progress'],
                             'disposition_id' => $record->id
                         ]);
                     })
@@ -138,10 +148,13 @@ class DispotitionResource extends Resource
                                 }),
                             TextEntry::make('created_at')
                             ->label('Tanggal Input'),
-                            TextEntry::make('ket')
-                                ->columnSpan(2),
+                            TextEntry::make('ket'),
+                            TextEntry::make('document-progress')
+                                ->url(fn ($state) => url("storage/{$state}"))
+//                                ->columnSpan(1),
+
                         ])
-                        ->columns(2)
+                        ->columns(1)
                 ])
                 ]);
 

@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\PimpinanDashboard;
+use App\Filament\Resources\LetterInResource\Widgets\DailyLetterIn;
 use App\Filament\Resources\LetterInResource\Widgets\LetterOverview;
 use App\Filament\Resources\LetterInResource\Widgets\StatsOverview;
 use App\Http\Middleware\RedirectBasedOnRole;
@@ -54,7 +55,7 @@ class AdminPanelProvider extends PanelProvider
                 // Widgets\AccountWidget::class,
                 // Widgets\FilamentInfoWidget::class,
                 StatsOverview::class,
-//                LetterOverview::class
+                DailyLetterIn::class
             ])
             ->topNavigation()
             ->middleware([

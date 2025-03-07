@@ -14,7 +14,8 @@ class Progress extends Model
     protected $fillable = [
         'dispotition_id',
         'status_progress',
-        'ket'
+        'ket',
+        'document-progress'
     ];
 
 //    public static function boot()

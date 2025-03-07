@@ -18,20 +18,21 @@ class Dispotition extends Model
     {
         parent::boot();
         // Saat Disposisi dibuat, update status surat
-        static::created(function ($disposition) {
-            $disposition->letterIn()->update(['status_disposisi' => 'sudah_disposisi']);
-            $disposition->progress()->create([
+        static::created(function ($dispotition) {
+            $dispotition->letterIn()->update(['status_disposisi' => 'sudah_disposisi']);
+            $dispotition->progress()->create([
                 'status_progress' => 'belum_selesai',
-                'ket' => 'disposisi awal dari pimpinan'
+                'ket' => 'disposisi awal dari pimpinan',
+                'document-progress' => 'belum ada'
             ]);
-            $pegawai = $disposition->employee;
+            $pegawai = $dispotition->employee;
 //            $pegawai->notify(new DisposisiWhatsAppNotification($disposition));
         });
 
         // Saat Disposisi dihapus, cek apakah masih ada disposisi, jika tidak ubah status jadi "Belum Disposisi"
-        static::deleted(function ($disposition) {
-            if (!$disposition->letterIn->disposition()->exists()) {
-                $disposition->letterIn()->update(['status_disposisi' => 'belum_disposisi']);
+        static::deleted(function ($dispotition) {
+            if (!$dispotition->letterIn->dispotition()->exists()) {
+                $dispotition->letterIn()->update(['status_disposisi' => 'belum_disposisi']);
             }
         });
     }
@@ -61,6 +62,7 @@ class Dispotition extends Model
     {
         return $this->belongsTo(Departement::class);
     }
+
 
     public function progress()
     {

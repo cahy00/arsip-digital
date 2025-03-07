@@ -35,6 +35,13 @@ class LetterIn extends Model
 
 //    public function employee()
 //    {
+//        return $this->belongsToMany(Employee::class, 'dispotitions')
+//            ->using(Dispotition::class);
+////            ->withPivot('')
+//    }
+
+//    public function employee()
+//    {
 //        return $this->hasMany(Employee::class, 'employee_id');
 //    }
 }

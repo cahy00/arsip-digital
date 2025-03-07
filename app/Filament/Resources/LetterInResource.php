@@ -246,8 +246,16 @@ class LetterInResource extends Resource
 //                    ])
 //                    ->modalHeading('Beri Disposisi')
 //                    ->modalButton('Simpan')
-//                    ->action(fn ($data, $record) => $record->progress()
-//                        ->updateOrCreate(['letter_in_id' => $record->id], ['departement_id' => $data['departement_id']], ['employee_id' => $data['employee_id']],['ket' => $data['ket']]))
+//                    ->action(function ($data, $record) {
+//                        $record->progress()->create([
+//                            'employee_id' => $data['employee_id'], // Pastikan field ada
+//                            'departement_id' => $data['departement_id'],
+//                            'ket' => $data['ket'],
+//                            'letter_in_id' => $record->id
+//                        ]);
+//                    })
+////                    ->action(fn ($data, $record) => $record->progress()
+////                    ->updateOrCreate(['letter_in_id' => $record->id], ['departement_id' => $data['departement_id']], ['employee_id' => $data['employee_id']],['ket' => $data['ket']]))
 //                    ->hidden(fn () => !auth()->user()->hasRole(['admin', 'pimpinan'])),
             ])
             ->bulkActions([
